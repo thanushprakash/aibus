@@ -1,0 +1,90 @@
+import json
+import requests
+import logging
+from datetime import datetime
+import random
+
+# Configure Logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+class AIBusCrowdManagement:
+    def __init__(self, bus_id, route_id, server_url):
+        self.bus_id = bus_id
+        self.route_id = route_id
+        self.server_url = server_url
+        self.crowd_count = 0
+        self.location = "Unknown"
+    
+    def simulate_sensor_data(self):
+        """Simulate AI sensor detecting crowd count."""
+        try:
+            self.crowd_count = random.randint(0, 60)  # Simulating headcount
+            logging.info(f"Detected Crowd Count: {self.crowd_count}")
+            return self.crowd_count
+        except Exception as e:
+            logging.error(f"Error in sensor data simulation: {e}")
+            return None
+    
+    def update_location(self):
+        """Simulate GPS tracking of the bus."""
+        try:
+            locations = ["Majestic", "BTM Layout", "Silk Board", "Electronic City", "KR Market"]
+            self.location = random.choice(locations)
+            logging.info(f"Current Location: {self.location}")
+            return self.location
+        except Exception as e:
+            logging.error(f"Error updating location: {e}")
+            return "Unknown"
+    
+    def transmit_data(self):
+        """Send collected data to the BMTC central server."""
+        try:
+            payload = {
+                "bus_id": self.bus_id,
+                "route_id": self.route_id,
+                "timestamp": datetime.now().isoformat(),
+                "crowd_count": self.crowd_count,
+                "location": self.location
+            }
+            response = requests.post(self.server_url, json=payload)
+            if response.status_code == 200:
+                logging.info("Data successfully transmitted to BMTC server.")
+            else:
+                logging.warning(f"Failed to transmit data: {response.status_code}, {response.text}")
+        except requests.exceptions.RequestException as e:
+            logging.error(f"Network error while transmitting data: {e}")
+        except Exception as e:
+            logging.error(f"Unexpected error in data transmission: {e}")
+    
+    def run_system(self):
+        """Run the AI-based crowd management system in a loop."""
+        try:
+            while True:
+                self.simulate_sensor_data()
+                self.update_location()
+                self.transmit_data()
+                logging.info("Waiting for next data update...")
+                time.sleep(10)  # Simulating real-time data updates every 10 seconds
+        except KeyboardInterrupt:
+            logging.info("System interrupted by user. Exiting...")
+        except Exception as e:
+            logging.error(f"Unexpected error in system run: {e}")
+
+if __name__ == "__main__":
+    bus_system = AIBusCrowdManagement(bus_id="BMTC_1234", route_id="Route_15", server_url="http://bmtc-server.com/api/crowd-data")
+    bus_system.run_system()
+
+
+
+
+
+
+
+___________________________________________________________________________
+
+
+This Python script simulates an AI-powered crowd management system for BMTC buses. It includes:
+✔ Simulated AI sensors for crowd detection
+✔ Real-time GPS tracking for bus location updates
+✔ Data transmission to a central BMTC server
+✔ Robust error handling and logging
